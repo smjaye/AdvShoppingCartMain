@@ -5,7 +5,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import adshopcart_locators as locators
 from selenium.webdriver.support.ui import Select # ----------add this import for drop down lists
-
+from selenium.common.exceptions import NoSuchElementException
 
 s = Service(executable_path='../chromedriver.exe')
 driver = webdriver.Chrome(service=s)
@@ -93,9 +93,9 @@ def check_full_name():
     print(f'*******************************************************************************')
     if driver.current_url == locators.advantage_shopping_url:  # check we are on home page
         assert driver.find_element(By.ID, 'menuUserLink').is_displayed()
-        sleep(0.25)
+        sleep(0.5)
         driver.find_element(By.ID, 'menuUserLink').click()
-        sleep(0.25)
+        sleep(0.5)
         driver.find_element(By.XPATH, '//*[@id="loginMiniTitle"]/label[contains(., "My account")]').click()
         sleep(0.5)
         print(f'************Validating Full name is displayed*********************************')
@@ -109,9 +109,9 @@ def check_full_name():
 def check_orders():
     print(f'********************************************************************')
     assert driver.find_element(By.ID, 'menuUserLink').is_displayed()
-    sleep(0.25)
+    sleep(0.5)
     driver.find_element(By.ID, 'menuUserLink').click()
-    sleep(0.25)
+    sleep(0.5)
     driver.find_element(By.XPATH, '//*[@id="loginMiniTitle"]/label[contains(., "My orders")]').click()
     sleep(0.5)
     print(f'****************Validating to check there is - No Orders********************')
@@ -125,11 +125,11 @@ def check_orders():
 def log_out():
     print(f'**********************************************************************')
     assert driver.find_element(By.ID, 'menuUserLink').is_displayed()
-    sleep(0.25)
+    sleep(0.5)
     driver.find_element(By.ID, 'menuUserLink').click()
-    sleep(0.25)
+    sleep(0.5)
     driver.find_element(By.XPATH, '//*[@id="loginMiniTitle"]/label[contains(., "Sign out")]').click()
-    sleep(0.25)
+    sleep(0.5)
     print(f'You have successfully logged out, feel free to log in again!')
 
 
@@ -139,9 +139,9 @@ def log_in():
     if driver.current_url == locators.advantage_shopping_url: # check we are on home page
         print(driver.current_url)
         driver.find_element(By.ID, 'menuUserSVGPath').click()
-        sleep(0.25)
+        sleep(0.75)
         driver.find_element(By.NAME, 'username').send_keys(locators.username)
-        sleep(0.25)
+        sleep(0.75)
         driver.find_element(By.NAME, 'password').send_keys(locators.password)
         sleep(0.25)
         driver.find_element(By.ID, 'sign_in_btnundefined').click()
@@ -153,11 +153,11 @@ def log_in():
 def delete_test_account():
     print(f'***************Delete the Account***************************')
     assert driver.find_element(By.ID, 'menuUserLink').is_displayed()
-    sleep(0.25)
-    driver.find_element(By.ID, 'menuUserLink').click()
-    sleep(0.25)
-    driver.find_element(By.XPATH, '//*[@id="loginMiniTitle"]/label[contains(., "My account")]').click()
     sleep(0.5)
+    driver.find_element(By.ID, 'menuUserLink').click()
+    sleep(0.5)
+    driver.find_element(By.XPATH, '//*[@id="loginMiniTitle"]/label[contains(., "My account")]').click()
+    sleep(1)
     driver.find_element(By.XPATH, '//button[contains(., "Delete Account")]').click()
     sleep(0.5)
     driver.find_element(By.CSS_SELECTOR, 'div.deletePopupBtn.deleteRed').click()
@@ -166,15 +166,15 @@ def delete_test_account():
     print(f'***********************Verify account is deleted*************************')
 
     driver.find_element(By.ID, 'hrefUserIcon').click()
-    sleep(0.25)
+    sleep(0.5)
     driver.find_element(By.NAME, 'username').send_keys(locators.username)
-    sleep(0.25)
+    sleep(0.5)
     driver.find_element(By.NAME, 'password').send_keys(locators.password)
     sleep(1)
     driver.find_element(By.ID, 'sign_in_btnundefined').click()
-    sleep(0.5)
-
-    if driver.find_element(By.ID, 'signInResultMessage').is_displayed():
+    sleep(1)
+    if driver.current_url == locators.advantage_shopping_url:  # check we are on home page
+        driver.find_element(By.XPATH, '//label[contains(., "Incorrect user name or password.")]').is_displayed()
         print(f'-------Incorrect user name or password message is displayed.')
         print(f'--------You have deleted the account of {locators.username}----')
         print(f'*************This test is passed at: {datetime.datetime.now()}*************')
@@ -183,11 +183,92 @@ def delete_test_account():
 
 
 
+def check_homepage():
+    print(f'********************Homepage Validation****************************')
+    if driver.current_url == locators.advantage_shopping_url:  # check we are on home page
+        driver.find_element(By.CSS_SELECTOR, '.closeBtn.loginPopUpCloseBtn').click()
+        sleep(2.25)
+        print(f'*************Check that SPEAKERS, TABLETS, HEADPHONES, LAPTOPS, MICE texts are displayed.**********')
+        for i in range(len(locators.product_list)):
+            assert driver.find_element(By.XPATH, f'//span[contains(., "{locators.product_list[i]}")]').is_displayed()
+            verifyproducts = driver.find_element(By.XPATH, f'//span[contains(., "{locators.product_list[i]}")]').is_displayed()
+            print(f'The product {locators.product_list[i]} text is displayed: {verifyproducts}')
+            sleep(1)
+
+
+        print(f'****Check that links are clickable************************')
+        driver.find_element(By.XPATH, '//a[normalize-space()="OUR PRODUCTS"]').click()
+        sleep(0.5)
+        if driver.find_element(By.XPATH, '//a[normalize-space()="OUR PRODUCTS"]').is_displayed():
+            sleep(0.5)
+            print(f'############ Our products page is displayed ############')
+        else:
+            print(f'*******Our products page is not displayed***************')
+
+        driver.find_element(By.XPATH, '//a[normalize-space()="SPECIAL OFFER"]').click()
+        sleep(0.5)
+        if driver.find_element(By.XPATH, '//h3[contains(.,"SPECIAL OFFER")]').is_displayed():
+            sleep(0.5)
+            print(f'################ Special offer page is displayed #######################')
+        else:
+            print(f'************Special offer page is not displayed****************')
+
+        driver.find_element(By.XPATH, '//a[normalize-space()="POPULAR ITEMS"]').click()
+        sleep(0.5)
+        if driver.find_element(By.XPATH, '//h3[contains(.,"POPULAR ITEMS")]').is_displayed():
+            sleep(0.75)
+            print(f'################ Popular items page is displayed ###############')
+        else:
+            print(f'************Popular items page is not displayed**************')
+
+        driver.find_element(By.XPATH, '//a[normalize-space()="CONTACT US"]').click()
+        sleep(0.75)
+        if driver.find_element(By.XPATH, '//h1[contains(.,"CONTACT US")]').is_displayed():
+            sleep(0.5)
+            print(f'############### Contact us page is displayed ##################')
+        else:
+            print(f'***********Contact us page is not displayed***************')
+
+
+            print(f'************Check that main page logo is displayed***********************')
+        if driver.find_element(By.XPATH, '//span[contains(., "dvantage")]').is_displayed() \
+            and driver.find_element(By.XPATH, '//span[contains(., "DEMO")]').is_displayed():
+            sleep(0.75)
+            print(f'**********The main logo is displayed: dvantageDemo*************')
+        else:
+             print(f'**********The main logo is not displayed: check your code or website*************')
+
+        driver.find_element(By.XPATH, '//h1[contains(., "CONTACT US")]').is_displayed()
+        sleep(0.5)
+        Select(driver.find_element(By.NAME, 'categoryListboxContactUs')).select_by_visible_text('Tablets')
+        sleep(1)
+        Select(driver.find_element(By.NAME, 'productListboxContactUs')).select_by_visible_text('HP ElitePad 1000 G2 Tablet')
+        sleep(0.75)
+        driver.find_element(By.NAME, 'emailContactUs').send_keys(locators.email)
+        sleep(0.75)
+        driver.find_element(By.NAME, 'subjectTextareaContactUs').send_keys(locators.Subject)
+        sleep(0.75)
+        driver.find_element(By.ID, 'send_btnundefined').click()
+        sleep(0.75)
+        if driver.find_element(By.XPATH, '//a[@class="a-button ng-binding"]').is_displayed():
+            print(f'Continue Shopping text is displayed')
+        else:
+            print(f'Continue Shopping text is not displayed ')
+
+        print(f'********Contact us return message*****************')
+        if driver.find_element(By.XPATH, f'//p[contains(., "Thank you for contacting Advantage support.")]').is_displayed():
+            print(f'Thank you for contacting Advantage support message is displayed')
+        else:
+            print(f'Thank you message is not displayed')
+        driver.find_element(By.XPATH, f'//a[contains(., " CONTINUE SHOPPING ")]').click()
+        sleep(0.75)
 
 
 
 
 
+
+#
 # setUp()
 # sign_up()
 # check_full_name()
@@ -195,5 +276,6 @@ def delete_test_account():
 # log_out()
 # log_in()
 # delete_test_account()
+# check_homepage()
 # tearDown()
 

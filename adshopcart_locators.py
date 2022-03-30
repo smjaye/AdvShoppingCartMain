@@ -24,3 +24,7 @@ country = fake.current_country()
 address = fake.street_address()
 state = fake.province_abbr()
 postalcode = fake.postcode()
+
+product_list = ['SPEAKERS', 'TABLETS', 'LAPTOPS', 'HEADPHONES', 'MICE']
+
+Subject = fake.sentence(100)
